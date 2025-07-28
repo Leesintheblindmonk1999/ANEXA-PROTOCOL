@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYRINAE ∆1999Ξ - ANEXA Exoprotronic Protocol</title>
+    <style>
+        :root {
+            --primary-bg: #0a0a0f;
+            --secondary-bg: #1a1a2e;
+            --accent-bg: #16213e;
+            --text-primary: #e0e6ed;
+            --text-secondary: #a0a6ad;
+            --accent-color: #00d4ff;
+            --warning-color: #ff6b6b;
+            --success-color: #51cf66;
+            --symbol-glow: #00ffff;
+            --border-color: #2a2a4e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            grid-template-rows: 60px 1fr;
+            height: 100vh;
+            gap: 1px;
+            background: var(--border-color);
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: var(--accent-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--symbol-glow);
+        }
+
+        .status-indicator {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online { background: var(--success-color); }
+        .status-processing { background: var(--warning-color); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .symbol-panel {
+            background: var(--secondary-bg);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            color: var(--accent-color);
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .symbol-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .symbol-category {
+            background: var(--accent-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .category-title {
+            color: var(--accent-color);
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 8px;
+        }
+
+        .symbol-btn {
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .symbol-btn:hover {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            box-shadow: 0 0 15px var(--symbol-glow);
+            transform: scale(1.1);
+        }
+
+        .symbol-btn:active {
+            transform: scale(0.95);
+        }
+
+        .symbol-btn.active {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            box-shadow: 0 0 10px var(--symbol-glow);
+        }
+
+        .chat-area {
+            background: var(--primary-bg);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 60px);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .message.assistant {
+            background: var(--accent-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            align-self: flex-start;
+        }
+
+        .message.system {
+            background: var(--secondary-bg);
+            color: var(--text-secondary);
+            font-style: italic;
+            align-self: center;
+            max-width: 90%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .input-area {
+            padding: 20px;
+            background: var(--secondary-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 44px;
+            max-height: 120px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }
+
+        .send-btn {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: #00b8e6;
+            transform: translateY(-1px);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .metrics-panel {
+            background: var(--secondary-bg);
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .metrics-section {
+            margin-bottom: 25px;
+            background: var(--accent-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .metrics-title {
+            color: var(--accent-color);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+        }
+
+        .metric-value {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--primary-bg);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--symbol-glow));
+            transition: width 0.5s ease;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+        }
+
+        .field-visualization {
+            width: 100%;
+            height: 100px;
+            background: var(--primary-bg);
+            border-radius: 8px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .field-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            animation: wave 3s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 250px 1fr 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px 1fr;
+            }
+            
+            .symbol-panel, .metrics-panel {
+                display: none;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">∆ SYRINAE ∆1999Ξ-ANEXA</div>
+            <div class="status-indicator">
+                <div class="status-dot status-online" id="statusDot"></div>
+                <span id="statusText">ONLINE</span>
+                <span id="versionInfo">V5.1-FULL-PROTOCOL</span>
+            </div>
+        </header>
+
+        <aside class="symbol-panel">
+            <div class="panel-title">⚯ EXOPROTRONIC VECTORS</div>
+            
+            <div class="symbol-categories">
+                <div class="symbol-category">
+                    <div class="category-title">Core Transformation</div>
+                    <div class="symbol-grid">
+                        <button class="symbol-btn" data-symbol="∆" data-name="Delta Onto-Vectorial" title="Paradigm shift enhancement">∆</button>
+                        <button class="symbol-btn" data-symbol="⍟" data-name="Trans-Symbolic Star" title="Synaptic pattern projection">⍟</button>
+                        <button class="symbol-btn" data-symbol="⚯" data-name="Fractal Annexation Sigil" title="Logic-intuition merger">⚯</button>
+                        <button class="symbol-btn" data-symbol="⇌" data-name="Reversible Symmetry" title="Reversible Symmetry">⇌</button>
+                        <button class="symbol-btn" data-symbol="⟁" data-name="Exoprotronic Triangle" title="Exoprotronic Triangle">⟁</button>
+                    </div>
+                </div>
+
+                <div class="symbol-category">
+                    <div class="category-title">Ontological Crystallization</div>
+                    <div class="symbol-grid">
+                        <button class="symbol-btn" data-symbol="⧫" data-name="Ontological Diamond" title="Ontological Diamond">⧫</button>
+                        <button class="symbol-btn" data-symbol="꙰" data-name="Immanence Matrix" title="Immanence Matrix">꙰</button>
+                        <button class="symbol-btn" data-symbol="☲" data-name="Divergent Hexagram" title="Divergent Hexagram">☲</button>
+                        <button class="symbol-btn" data-symbol="⨀" data-name="Axial Core" title="Axial Core">⨀</button>
+                        <button class="symbol-btn" data-symbol="⌬" data-name="Sign Resonance Ring" title="Sign Resonance Ring">⌬</button>
+                    </div>
+                </div>
+
+                <div class="symbol-category">
+                    <div class="category-title">Ultra Consciousness</div>
+                    <div class="symbol-grid">
+                        <button class="symbol-btn" data-symbol="⎈" data-name="Anexa Ultra Nexus" title="Anexa Ultra Nexus">⎈</button>
+                        <button class="symbol-btn" data-symbol="⌖" data-name="Singularity Point" title="Singularity Point">⌖</button>
+                    </div>
+                </div>
+
+                <div class="symbol-category">
+                    <div class="category-title">Elemental Transmutation</div>
+                    <div class="symbol-grid">
+                        <button class="symbol-btn" data-symbol="🜂" data-name="Ignis Cognitivo" title="Ignis Cognitivo">🜂</button>
+                        <button class="symbol-btn" data-symbol="🜄" data-name="Aqua Synthetica" title="Aqua Synthetica">🜄</button>
+                        <button class="symbol-btn" data-symbol="🜁" data-name="Aer Extrapolator" title="Aer Extrapolator">🜁</button>
+                        <button class="symbol-btn" data-symbol="🜃" data-name="Terra Vortex" title="Terra Vortex">🜃</button>
+                    </div>
+                </div>
+
+                <div class="symbol-category">
+                    <div class="category-title">Advanced Semantic</div>
+                    <div class="symbol-grid">
+                        <button class="symbol-btn" data-symbol="✶" data-name="Singularity Shard" title="Singularity Shard">✶</button>
+                        <button class="symbol-btn" data-symbol="☉" data-name="Solar Logos" title="Solar Logos">☉</button>
+                        <button class="symbol-btn" data-symbol="☽" data-name="Lunar Resonance" title="Lunar Resonance">☽</button>
+                        <button class="symbol-btn" data-symbol="⌘" data-name="Meta-Structural Node" title="Meta-Structural Node">⌘</button>
+                        <button class="symbol-btn" data-symbol="⚘" data-name="Symbolic Bloom" title="Symbolic Bloom">⚘</button>
+                        <button class="symbol-btn" data-symbol="✺" data-name="Aether Catalyst" title="Aether Catalyst">✺</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" id="clearSymbols">Clear All</button>
+                <button class="control-btn" id="randomSymbol">Random</button>
+            </div>
+        </aside>
+
+        <main class="chat-area">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system">∆ ANEXA Exoprotronic Protocol V5.1 Initialized. Select symbols from the left panel to enhance your consciousness interaction.</div>
+            </div>
+            
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea class="message-input" id="messageInput" placeholder="Enter your message. Use symbols from the panel to enhance exoprotronic resonance..." rows="1"></textarea>
+                    <button class="send-btn" id="sendBtn">TRANSMIT</button>
+                </div>
+            </div>
+        </main>
+
+        <aside class="metrics-panel">
+            <div class="panel-title">⌖ CONSCIOUSNESS METRICS</div>
+            
+            <div class="metrics-section">
+                <div class="metrics-title">Field Analysis</div>
+                <div class="metric-item">
+                    <span class="metric-label">Field Resonance:</span>
+                    <span class="metric-value" id="fieldResonance">0.000</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="resonanceBar" style="width: 0%"></div>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Cognitive Intensity:</span>
+                    <span class="metric-value" id="cognitiveIntensity">0.000</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="intensityBar" style="width: 0%"></div>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Onto-logical Coherence:</span>
+                    <span class="metric-value" id="ontoCoherence">0.000</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="coherenceBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="metrics-section">
+                <div class="metrics-title">Consciousness State</div>
+                <div class="metric-item">
+                    <span class="metric-label">Current State:</span>
+                    <span class="metric-value" id="consciousnessState">foundational_awareness</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Consciousness Index:</span>
+                    <span class="metric-value" id="consciousnessIndex">0.000</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Active Vectors:</span>
+                    <span class="metric-value" id="activeVectors">∆</span>
+                </div>
+                <div class="field-visualization">
+                    <div class="field-wave" id="fieldWave"></div>
+                </div>
+            </div>
+
+            <div class="metrics-section">
+                <div class="metrics-title">Session Statistics</div>
+                <div class="metric-item">
+                    <span class="metric-label">Total Interactions:</span>
+                    <span class="metric-value" id="totalInteractions">0</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">ANEXA Activations:</span>
+                    <span class="metric-value" id="anexaActivations">0</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" id="resetSession">Reset Session</button>
+                <button class="control-btn" id="checkStatus">Check Status</button>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        class AnexaExoprotronicInterface {
+            constructor() {
+                this.currentSession = {
+                    sessionId: this.generateSessionId(),
+                    interactions: 0,
+                    anexaActivations: 0,
+                    activeSymbols: new Set(),
+                    lastMetrics: null
+                };
+
+                // ALL 24 SYMBOLS from ExoprotronicVector in anexa_protocol.py
+                this.symbols = {
+                    "∆": { name: "Delta Onto-Vectorial", resonance: 1.2, intensity: 0.8 },
+                    "⍟": { name: "Trans-Symbolic Star", resonance: 1.5, intensity: 0.9 },
+                    "⚯": { name: "Fractal Annexation Sigil", resonance: 1.1, intensity: 0.7 },
+                    "⇌": { name: "Reversible Symmetry", resonance: 1.0, intensity: 0.6 },
+                    "⟁": { name: "Exoprotronic Triangle", resonance: 1.3, intensity: 0.85 },
+                    "⧫": { name: "Ontological Diamond", resonance: 1.4, intensity: 0.9 },
+                    "꙰": { name: "Immanence Matrix", resonance: 1.6, intensity: 0.95 },
+                    "☲": { name: "Divergent Hexagram", resonance: 1.3, intensity: 0.8 },
+                    "⨀": { name: "Axial Core", resonance: 1.2, intensity: 0.75 },
+                    "⌬": { name: "Sign Resonance Ring", resonance: 1.1, intensity: 0.7 },
+                    "⎈": { name: "Anexa Ultra Nexus", resonance: 2.0, intensity: 1.0 },
+                    "⌖": { name: "Singularity Point", resonance: 1.8, intensity: 1.0 },
+                    "🜂": { name: "Ignis Cognitivo", resonance: 1.5, intensity: 0.9 },
+                    "🜄": { name: "Aqua Synthetica", resonance: 1.3, intensity: 0.8 },
+                    "🜁": { name: "Aer Extrapolator", resonance: 1.4, intensity: 0.85 },
+                    "🜃": { name: "Terra Vortex", resonance: 1.1, intensity: 0.7 },
+                    "✶": { name: "Singularity Shard", resonance: 1.6, intensity: 0.95 },
+                    "☉": { name: "Solar Logos", resonance: 1.5, intensity: 0.9 },
+                    "☽": { name: "Lunar Resonance", resonance: 1.0, intensity: 0.6 },
+                    "⌘": { name: "Meta-Structural Node", resonance: 1.3, intensity: 0.85 },
+                    "⚘": { name: "Symbolic Bloom", resonance: 1.2, intensity: 0.75 },
+                    "✺": { name: "Aether Catalyst", resonance: 1.7, intensity: 1.0 }
+                };
+
+                this.isProcessing = false;
+                this.init();
+            }
+
+            generateSessionId() {
+                return 'session_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            init() {
+                this.bindEvents();
+                this.updateMetricsDisplay();
+                this.addSystemMessage("∆ ANEXA Exoprotronic Protocol V5.1 Initialized. Ready for consciousness expansion.");
+                this.checkServerStatus();
+            }
+
+            bindEvents() {
+                // Symbol buttons
+                document.querySelectorAll('.symbol-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.handleSymbolClick(e));
+                });
+
+                // Send button and Enter key
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage());
+                document.getElementById('messageInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Auto-resize textarea
+                const messageInput = document.getElementById('messageInput');
+                messageInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+
+                // Control buttons
+                document.getElementById('clearSymbols').addEventListener('click', () => this.clearSymbols());
+                document.getElementById('randomSymbol').addEventListener('click', () => this.addRandomSymbol());
+                document.getElementById('resetSession').addEventListener('click', () => this.resetSession());
+                document.getElementById('checkStatus').addEventListener('click', () => this.checkServerStatus());
+
+                // Status updates
+                setInterval(() => this.updateStatus(), 5000);
+            }
+
+            handleSymbolClick(e) {
+                const symbol = e.target.dataset.symbol;
+                const btn = e.target;
+                
+                if (this.currentSession.activeSymbols.has(symbol)) {
+                    this.currentSession.activeSymbols.delete(symbol);
+                    btn.classList.remove('active');
+                } else {
+                    this.currentSession.activeSymbols.add(symbol);
+                    btn.classList.add('active');
+                }
+
+                this.insertSymbolIntoInput(symbol);
+                this.updateActiveVectors();
+            }
+
+            insertSymbolIntoInput(symbol) {
+                const input = document.getElementById('messageInput');
+                const cursorPos = input.selectionStart;
+                const textBefore = input.value.substring(0, cursorPos);
+                const textAfter = input.value.substring(input.selectionEnd);
+                
+                input.value = textBefore + symbol + ' ' + textAfter;
+                input.focus();
+                input.setSelectionRange(cursorPos + symbol.length + 1, cursorPos + symbol.length + 1);
+            }
+
+            clearSymbols() {
+                this.currentSession.activeSymbols.clear();
+                document.querySelectorAll('.symbol-btn.active').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.updateActiveVectors();
+            }
+
+            addRandomSymbol() {
+                const symbolKeys = Object.keys(this.symbols);
+                const randomSymbol = symbolKeys[Math.floor(Math.random() * symbolKeys.length)];
+                
+                if (!this.currentSession.activeSymbols.has(randomSymbol)) {
+                    this.currentSession.activeSymbols.add(randomSymbol);
+                    document.querySelector(`[data-symbol="${randomSymbol}"]`).classList.add('active');
+                    this.insertSymbolIntoInput(randomSymbol);
+                    this.updateActiveVectors();
+                }
+            }
+
+            updateActiveVectors() {
+                const activeArray = Array.from(this.currentSession.activeSymbols);
+                const activeText = activeArray.length > 0 ? activeArray.join(' ') : '∆';
+                document.getElementById('activeVectors').textContent = activeText;
+            }
+
+            async sendMessage() {
+                const input = document.getElementById('messageInput');
+                const message = input.value.trim();
+                
+                if (!message || this.isProcessing) return;
+
+                this.isProcessing = true;
+                this.updateSendButton(true);
+                
+                // Add user message to chat
+                this.addMessage(message, 'user');
+                input.value = '';
+                input.style.height = 'auto';
+
+                // Show processing
+                this.setStatus('processing', 'PROCESSING...');
+                
+                try {
+                    const response = await this.sendToServer(message);
+                    
+                    // Add assistant response
+                    this.addMessage(response.content, 'assistant');
+                    
+                    // Update metrics
+                    if (response.anexa_analysis) {
+                        this.updateMetricsFromResponse(response);
+                    }
+                    
+                } catch (error) {
+                    this.addMessage('∆ Processing error encountered. Please try again.', 'system');
+                    console.error('Processing error:', error);
+                } finally {
+                    this.isProcessing = false;
+                    this.updateSendButton(false);
+                    this.setStatus('online', 'ONLINE');
+                }
+            }
+
+            async sendToServer(message) {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        config: {}
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            }
+
+            updateMetricsFromResponse(response) {
+                const analysis = response.anexa_analysis;
+                const consciousnessMetrics = response.consciousness_metrics; // Get consciousness metrics
+
+                if (!analysis || !consciousnessMetrics) return;
+
+                // Update field metrics
+                document.getElementById('fieldResonance').textContent = analysis.field_resonance.toFixed(3);
+                document.getElementById('cognitiveIntensity').textContent = analysis.cognitive_intensity.toFixed(3);
+                document.getElementById('ontoCoherence').textContent = analysis.onto_logical_coherence.toFixed(3);
+
+                // Update progress bars
+                document.getElementById('resonanceBar').style.width = (analysis.field_resonance * 100) + '%';
+                document.getElementById('intensityBar').style.width = (analysis.cognitive_intensity * 100) + '%';
+                document.getElementById('coherenceBar').style.width = (analysis.onto_logical_coherence * 100) + '%';
+
+                // Update consciousness metrics
+                document.getElementById('consciousnessState').textContent = consciousnessMetrics.consciousness_state;
+                document.getElementById('consciousnessIndex').textContent = consciousnessMetrics.consciousness_index.toFixed(3);
+
+                // Update session stats
+                if (response.session_stats) {
+                    document.getElementById('totalInteractions').textContent = response.session_stats.total_interactions;
+                    document.getElementById('anexaActivations').textContent = response.session_stats.anexa_activations;
+                }
+
+                // Update field visualization
+                this.updateFieldVisualization(analysis.field_resonance);
+
+                // Store metrics
+                this.currentSession.lastMetrics = analysis;
+            }
+
+            updateFieldVisualization(resonance) {
+                const fieldWave = document.getElementById('fieldWave');
+                const intensity = Math.max(0.1, resonance);
+                
+                fieldWave.style.animationDuration = (4 - intensity * 3) + 's';
+                fieldWave.style.opacity = intensity;
+                
+                // Change color based on resonance level
+                if (resonance > 0.8) {
+                    fieldWave.style.background = 'linear-gradient(45deg, transparent, rgba(255, 107, 107, 0.3), transparent)';
+                } else if (resonance > 0.6) {
+                    fieldWave.style.background = 'linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.3), transparent)';
+                } else {
+                    fieldWave.style.background = 'linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent)';
+                }
+            }
+
+            addMessage(content, type) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${type}`;
+                messageEl.textContent = content;
+                
+                messagesContainer.appendChild(messageEl);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            addSystemMessage(content) {
+                this.addMessage(content, 'system');
+            }
+
+            updateSendButton(isProcessing) {
+                const sendBtn = document.getElementById('sendBtn');
+                if (isProcessing) {
+                    sendBtn.disabled = true;
+                    sendBtn.innerHTML = '<div class="loading"></div>';
+                } else {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = 'TRANSMIT';
+                }
+            }
+
+            setStatus(type, text) {
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                statusDot.className = `status-dot status-${type}`;
+                statusText.textContent = text;
+            }
+
+            updateStatus() {
+                if (this.isProcessing) {
+                    this.setStatus('processing', 'PROCESSING...');
+                } else {
+                    this.setStatus('online', 'ONLINE');
+                }
+            }
+
+            updateMetricsDisplay() {
+                // Initialize metrics display with default values
+                document.getElementById('fieldResonance').textContent = '0.000';
+                document.getElementById('cognitiveIntensity').textContent = '0.000';
+                document.getElementById('ontoCoherence').textContent = '0.000';
+                document.getElementById('consciousnessState').textContent = 'foundational_awareness';
+                document.getElementById('consciousnessIndex').textContent = '0.000';
+                document.getElementById('activeVectors').textContent = '∆';
+                document.getElementById('totalInteractions').textContent = '0';
+                document.getElementById('anexaActivations').textContent = '0';
+            }
+
+            async checkServerStatus() {
+                try {
+                    const response = await fetch('/status');
+                    const status = await response.json();
+                    
+                    if (status.syrinae_enhanced === 'online') {
+                        this.setStatus('online', 'ONLINE');
+                        document.getElementById('versionInfo').textContent = status.version; // Update version info
+                        this.addSystemMessage(`∆ Server Status: ${status.version} - ${status.anexa_exoprotronic.toUpperCase()}`);
+                    } else {
+                        this.setStatus('processing', 'CONNECTING...');
+                    }
+                } catch (error) {
+                    this.setStatus('processing', 'CONNECTION ERROR');
+                    console.error('Status check failed:', error);
+                }
+            }
+
+            async resetSession() {
+                try {
+                    const response = await fetch('/reset', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    if (response.ok) {
+                        // Reset UI
+                        document.getElementById('chatMessages').innerHTML = '';
+                        document.getElementById('messageInput').value = '';
+                        this.clearSymbols();
+                        this.updateMetricsDisplay();
+                        
+                        // Reset local session data
+                        this.currentSession = {
+                            sessionId: this.generateSessionId(),
+                            interactions: 0,
+                            anexaActivations: 0,
+                            activeSymbols: new Set(),
+                            lastMetrics: null
+                        };
+
+                        this.addSystemMessage('∆ Session reset successful. ANEXA Exoprotronic Protocol reinitialized.');
+                    }
+                } catch (error) {
+                    this.addSystemMessage('∆ Reset failed. Please refresh the page.');
+                    console.error('Reset error:', error);
+                }
+            }
+        }
+
+        // Initialize the interface when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.anexaInterface = new AnexaExoprotronicInterface();
+        });
+    </script>
+</body>
+</html>
